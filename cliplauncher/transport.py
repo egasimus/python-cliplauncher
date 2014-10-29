@@ -1,0 +1,2 @@
+class JACKTransport(object):
+    pass

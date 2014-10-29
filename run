@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+
+
+from cliplauncher import ClipLauncher, MPlayerTrack
+
+
+ClipLauncher([
+
+    MPlayerTrack(u'Deck A', [
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        ]),
+
+    MPlayerTrack(u'Deck A', [
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        ]),
+
+    MPlayerTrack(u'Deck A', [
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        ]),
+
+    MPlayerTrack(u'Deck A', [
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        '/home/epimetheus/hear/samples/favorites/drums/140bpm-vec3-breakbeat-011.wav',
+        ])
+
+]).start()
+
