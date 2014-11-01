@@ -1,10 +1,14 @@
+import mido
 from urwid      import MainLoop
-from .transport import JACKTransport
+from .transport import Transport
 from .ui.midi   import MidiUI
 from .ui.urwid  import UrwidUI
 
 
 __all__ = ('ClipLauncher',)
+
+
+mido.set_backend('mido.backends.rtmidi')
 
 
 class ClipLauncher(object):
@@ -13,7 +17,7 @@ class ClipLauncher(object):
     ui        = {}
 
     def __init__(self, tracks=None):
-        self.transport = JACKTransport()
+        self.transport = Transport()
         self.tracks = tracks or self.tracks
         self.ui.update({'urwid': UrwidUI(self),
                         'midi':  MidiUI(self)})
@@ -24,7 +28,7 @@ class ClipLauncher(object):
         return [('title',        'white',      'light gray'),
                 ('header',       'white',      'light gray'),
                 ('header_focus', 'white',      'dark red'),
-                ('footer',       'white',      'dark cyan'),
+                ('footer',       'white',      'black'),
                 ('clip_focus',   'white',      'white'),
                 ('clip_empty',   'light gray', 'white')]
 
