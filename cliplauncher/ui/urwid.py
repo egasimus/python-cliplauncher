@@ -42,8 +42,10 @@ class PlayButton(BlockButton):
         self.playing = not self.playing
         if self.playing:
             self.transport.play() 
+            self._w.set_text('|| PAUSE')
         else:
             self.transport.pause()
+            self._w.set_text('> PLAY')
 
 
 class TransportWidget(WidgetWrap):
@@ -79,13 +81,23 @@ class TrackWidget(WidgetWrap):
 
 
 class UrwidUI(WidgetWrap, ClipLauncherUI):
+    palette = [('title',        'white',      'light gray'),
+               ('header',       'white',      'light gray'),
+               ('header_focus', 'white',      'dark red'),
+               ('footer',       'white',      'black'),
+               ('clip_focus',   'white',      'white'),
+               ('clip_empty',   'light gray', 'white')]
 
     def __init__(self, app):
         ClipLauncherUI.__init__(self, app)
+
+        self.app.main_loop.screen.register_palette(self.palette)
+
         self.cols   = Columns(SimpleFocusListWalker(
             [TrackWidget(t) for t in self.app.tracks]), 1)
         self.header = TransportWidget(app.transport)
         self.footer = AttrMap(Text('footer'), 'footer')
+
         WidgetWrap.__init__(self, Frame(
             self.cols, self.header, self.footer))
 
