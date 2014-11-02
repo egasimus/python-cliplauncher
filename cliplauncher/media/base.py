@@ -2,6 +2,7 @@ __all__ = ('Track', 'Clip')
  
 
 class Track(object):
+    app        = None
     clips      = []
     clip_class = None
     name       = None

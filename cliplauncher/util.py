@@ -9,7 +9,7 @@ def get_free_port():
     return s.getsockname()[1]
 
 
-def get_subprocess(*args):
+def run(*args):
     subprocess = Popen(
         args, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL)
     atexit.register(lambda: subprocess.kill())

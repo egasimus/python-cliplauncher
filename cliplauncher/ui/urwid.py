@@ -1,4 +1,4 @@
-from .     import ClipLauncherUI
+from .base import ClipLauncherUI
 from urwid import AttrMap, BoxAdapter, Button, Columns, ExitMainLoop, Frame, Filler, \
                   ListBox, MainLoop, SimpleFocusListWalker, Text, WidgetWrap
 
@@ -11,6 +11,9 @@ class DimButton(Button):
 class ClipButton(Button):
     button_left  = AttrMap(Text('['), 'clip_empty')
     button_right = AttrMap(Text(']'), 'clip_empty')
+
+    def __init__(self, clip):
+        Button.__init__(self, clip.name, clip.launch)
 
 
 class BlockButton(Button):
@@ -69,15 +72,11 @@ class TrackWidget(WidgetWrap):
         self.track = track or self.track
         self.add   = DimButton('', self.track.add_clip)
         self.clips = SimpleFocusListWalker(
-            [self.get_clip_widget(c) for c in self.track.clips] +
+            [ClipButton(c) for c in self.track.clips] +
             [AttrMap(self.add, 'clip_empty')])
         self.header = Text('\n'+self.track.name+'\n')
         WidgetWrap.__init__(self, Frame(ListBox(self.clips),
                                         self.header))
-
-    def get_clip_widget(self, clip):
-        return ClipButton(clip.name, clip.launch) if clip.name \
-          else AttrMap(ClipButton(''), 'clip_empty')
 
 
 class UrwidUI(WidgetWrap, ClipLauncherUI):
@@ -109,3 +108,4 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
     def react(self, msg):
         self.footer.original_widget.set_text(str(msg))
         self._invalidate()
+        self.app.main_loop.draw_screen()

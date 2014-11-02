@@ -1,9 +1,9 @@
 import atexit
 import liblo
 from   subprocess import Popen, DEVNULL, PIPE
-from   .base import Track
-from   .osc  import OSCClip
-from   .util import get_free_port
+from   .base  import Track
+from   .osc   import OSCClip
+from   ..util import get_free_port
 
 
 __all__ = ('MadJACKClip', 'MadJACKTrack')
