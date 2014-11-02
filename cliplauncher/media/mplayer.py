@@ -9,7 +9,6 @@ __all__ = ('MPlayerClip', 'MPlayerTrack')
 
 class MPlayerClip(Clip):
     player = None
-    loop   = True
 
     def __init__(self, *a, **k):
         self.loop = k.pop('loop', self.loop)
@@ -17,10 +16,8 @@ class MPlayerClip(Clip):
         args = ('-ao', 'jack')
         self.player = Player(args, DEVNULL, DEVNULL)
         self.player.loadfile(self.name)
-        if self.loop:
-            self.player.loop = 0
 
-    def launch(self, _):
+    def launch_now(self):
         self.player.pause()
 
 

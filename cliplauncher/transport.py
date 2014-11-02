@@ -6,9 +6,14 @@ from   .util      import run, get_free_port
 
 
 class Transport(object):
+    bar   = 0
+    beat  = 0
+    time  = 0
+
     quant = None
     tempo = 140
-    time  = 0
+
+    queue = []
 
     def __init__(self, app, tempo=None):
         self.app   = app
@@ -56,6 +61,12 @@ class Transport(object):
 
     def on_beat(self, beat):
         self.app.react('tick: pulse {0}'.format(beat))
+        for callback in self.queue:
+            callback()
+        self.queue = []
+
+    def enqueue(self, callback):
+        self.queue.append(callback)
 
     def play(self):
         liblo.send(self._jack_osc_address, liblo.Message('/start'))
