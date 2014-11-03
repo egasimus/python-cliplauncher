@@ -50,9 +50,13 @@ class Clip(object):
         pass
 
     def launch(self, _):
-        self.app.transport.enqueue(self.launch_now)
+        self.app.transport.enqueue(self.start)
 
-    def launch_now(self):
+    def stop(self):
         pass
 
+    def start(self):
+        pass
 
+    def end(self):
+        pass

@@ -17,7 +17,7 @@ class MPlayerClip(Clip):
         self.player = Player(args, DEVNULL, DEVNULL)
         self.player.loadfile(self.name)
 
-    def launch_now(self):
+    def start(self):
         self.player.pause()
 
 

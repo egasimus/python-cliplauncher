@@ -3,26 +3,13 @@ from urwid import AttrMap, BoxAdapter, Button, Columns, ExitMainLoop, Frame, Fil
                   ListBox, MainLoop, SimpleFocusListWalker, Text, WidgetWrap
 
 
-class DimButton(Button):
-    button_left  = Text('+')
-    button_right = Text('')
-
-
-class ClipButton(Button):
-    button_left  = AttrMap(Text('['), 'clip_empty')
-    button_right = AttrMap(Text(']'), 'clip_empty')
-
-    def __init__(self, clip):
-        Button.__init__(self, clip.name, clip.launch)
-
-
 class BlockButton(Button):
     def __init__(self, label, on_press=None, user_data=None):
         Button.__init__(self, label, on_press, user_data)
         self._w = self._label
 
 
-class TempoButton(Button):
+class TempoWidget(Button):
     transport = None
 
     def __init__(self, transport):
@@ -30,6 +17,27 @@ class TempoButton(Button):
         label = 'Tempo {0}BPM'.format(self.transport.tempo)
         Button.__init__(self, label)
         self._w = self._label
+
+
+class MetronomeWidget(Button):
+    transport = None
+    click     = None
+
+    def __init__(self, transport, click=False):
+        self.transport = transport
+        self.click     = click
+        label = 'Click ON' if self.click else 'Click OFF'
+        Button.__init__(self, label, self.on_click)
+        self._w = self._label
+
+    def on_click(self, _):
+        self.click = not self.click
+        if self.click:
+            self.transport.click_on()
+            self._w.set_text('Click ON')
+        else:
+            self.transport.click_off()
+            self._w.set_text('Click OFF')
 
 
 class PlayButton(BlockButton):
@@ -59,10 +67,24 @@ class TransportWidget(WidgetWrap):
         WidgetWrap.__init__(self, AttrMap(Columns([
             ('weight', 1, PlayButton(self.transport)),
             ('weight', 1, BlockButton('|< REW')),
-            ('weight', 2, Text('')),
-            ('weight', 1, TempoButton(self.transport)),
+            ('weight', 3, Text('')),
+            ('weight', 1, MetronomeWidget(self.transport)),
+            ('weight', 1, TempoWidget(self.transport)),
             ('weight', 1, Text('Quant 1 bar')),
         ], 1), 'footer'))
+
+
+class DimButton(Button):
+    button_left  = Text('+')
+    button_right = Text('')
+
+
+class ClipButton(Button):
+    button_left  = AttrMap(Text('['), 'clip_empty')
+    button_right = AttrMap(Text(']'), 'clip_empty')
+
+    def __init__(self, clip):
+        Button.__init__(self, clip.name, clip.launch)
 
 
 class TrackWidget(WidgetWrap):
