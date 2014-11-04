@@ -100,11 +100,10 @@ class Transport(object):
         if self.beat >= self.meter.upper:
             self.beat = 0
             self.bar += 1
-        time = At(self.beat, self.bar, 0)
+        time = At(self.bar, self.beat, 0)
         for callback in self.queue.get(time, []):
             self.app.react('callback {} at {}'.format(callback, time))
             callback()
-        #self.queue = []
 
     def get_next_quant(self):
         return At(self.bar + 2, 0, 0)

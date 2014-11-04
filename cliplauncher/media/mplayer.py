@@ -11,7 +11,6 @@ class MPlayerClip(Clip):
     player = None
 
     def __init__(self, *a, **k):
-        self.loop = k.pop('loop', self.loop)
         super(MPlayerClip, self).__init__(*a, **k)
         args = ('-ao', 'jack')
         self.player = Player(args, DEVNULL, DEVNULL)

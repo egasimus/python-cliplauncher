@@ -41,10 +41,11 @@ class Track(object):
 class Clip(object):
     app  = None
     loop = True
-    name = None
+    name = ''
     
-    def __init__(self, name=None):
-        self.name = name or ''
+    def __init__(self, name=None, loop=None):
+        self.name = name or self.name
+        self.loop = loop or self.loop
 
     def keypress(self, size, key):
         pass
