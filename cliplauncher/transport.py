@@ -94,19 +94,20 @@ class Transport(object):
         self.rolling = state == 1
 
     def on_beat(self, beat):
-        self.app.react('{}.{} {}'.format(self.bar, self.beat, self.meter))
-
         self.beat += 1
         if self.beat >= self.meter.upper:
             self.beat = 0
             self.bar += 1
+
+        self.app.react('{}.{} {}'.format(self.bar, self.beat, self.meter))
+
         time = At(self.bar, self.beat, 0)
         for callback in self.queue.get(time, []):
             self.app.react('callback {} at {}'.format(callback, time))
             callback()
 
     def get_next_quant(self):
-        return At(self.bar + 2, 0, 0)
+        return At(self.bar + 1, 0, 0)
 
     def enqueue(self, callback, time=None):
         time   = time or self.get_next_quant()
