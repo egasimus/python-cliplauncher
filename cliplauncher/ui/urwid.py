@@ -1,6 +1,8 @@
 from .base import ClipLauncherUI
-from urwid import AttrMap, BoxAdapter, Button, Columns, ExitMainLoop, Frame, Filler, \
-                  ListBox, MainLoop, SimpleFocusListWalker, Text, WidgetWrap
+from urwid import (AttrMap, BoxAdapter, Button, Columns, ExitMainLoop, Frame,
+                   Filler, ListBox, MainLoop, SelectableIcon,
+                   SimpleFocusListWalker, Text, WidgetWrap)
+from urwid.signals import connect_signal
 
 
 class BlockButton(Button):
@@ -53,10 +55,22 @@ class PlayButton(BlockButton):
         self.playing = not self.playing
         if self.playing:
             self.transport.play() 
-            self._w.set_text('|| PAUSE')
+            self._label.set_text('|| PAUSE')
         else:
             self.transport.pause()
-            self._w.set_text('> PLAY')
+            self._label.set_text('> PLAY')
+
+
+class RewindButton(BlockButton):
+    transport = None
+    can_rewind = False
+
+    def __init__(self, transport, playing=False):
+        self.transport = transport
+        BlockButton.__init__(self, '|< REW', self.on_click)
+
+    def on_click(self, _):
+        self.transport.rewind()
 
 
 class TransportWidget(WidgetWrap):
@@ -66,7 +80,7 @@ class TransportWidget(WidgetWrap):
         self.transport = transport or self.transport
         WidgetWrap.__init__(self, AttrMap(Columns([
             ('weight', 1, PlayButton(self.transport)),
-            ('weight', 1, BlockButton('|< REW')),
+            ('weight', 1, RewindButton(self.transport)),
             ('weight', 3, Text('')),
             ('weight', 1, MetronomeWidget(self.transport)),
             ('weight', 1, TempoWidget(self.transport)),
@@ -79,12 +93,38 @@ class DimButton(Button):
     button_right = Text('')
 
 
-class ClipButton(Button):
-    button_left  = AttrMap(Text('['), 'clip_empty')
-    button_right = AttrMap(Text(']'), 'clip_empty')
+class BaseClipButton(Button):
+    button_left  = None
+    button_right = None
+
+    def __init__(self, icon, label, on_press=None, user_data=None): 
+        self._icon  = AttrMap(SelectableIcon(icon, 0), 'clip_empty')
+        self._label = SelectableIcon(label, 0)
+
+        cols = Columns([
+            ('fixed', 1, self._icon),
+            self._label],
+            dividechars=1)
+        WidgetWrap.__init__(self, cols)
+
+        connect_signal(self, 'click', on_press, user_data)
+
+
+class ClipButton(BaseClipButton):
+    clip = None 
 
     def __init__(self, clip):
-        Button.__init__(self, clip.name, clip.launch)
+        self.clip = clip
+        super(ClipButton, self).__init__('·', clip.name, self.on_click)
+
+    def on_click(self, _):
+        self._icon.base_widget.set_text('*')
+        self.clip.launch(_)
+
+
+class AddClipButton(BaseClipButton):
+    def __init__(self):
+        super(AddClipButton, self).__init__('+', 'add clip')
 
 
 class TrackWidget(WidgetWrap):
@@ -95,7 +135,7 @@ class TrackWidget(WidgetWrap):
         self.add   = DimButton('', self.track.add_clip)
         self.clips = SimpleFocusListWalker(
             [ClipButton(c) for c in self.track.clips] +
-            [AttrMap(self.add, 'clip_empty')])
+            [AddClipButton()])
         self.header = Text('\n'+self.track.name+'\n')
         WidgetWrap.__init__(self, Frame(ListBox(self.clips),
                                         self.header))
@@ -108,6 +148,7 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
                ('footer',       'white',      'black'),
                ('clip_focus',   'white',      'white'),
                ('clip_empty',   'light gray', 'white')]
+    track_spacing = 2
 
     def __init__(self, app):
         ClipLauncherUI.__init__(self, app)
@@ -115,7 +156,8 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
         self.app.main_loop.screen.register_palette(self.palette)
 
         self.cols   = Columns(SimpleFocusListWalker(
-            [TrackWidget(t) for t in self.app.tracks]), 1)
+            [TrackWidget(t) for t in self.app.tracks]),
+            self.track_spacing)
         self.header = TransportWidget(app.transport)
         self.footer = AttrMap(Text('footer'), 'footer')
 

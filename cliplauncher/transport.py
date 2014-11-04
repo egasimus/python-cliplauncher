@@ -32,7 +32,7 @@ class Meter(tuple):
 
 class Transport(object):
     quant   = None
-    tempo   = 140
+    tempo   = 140.0
     meter   = Meter(4, 4) 
 
     rolling = False
@@ -55,9 +55,8 @@ class Transport(object):
         # klick is jack tempo master
         klick_port          = get_free_port()
         self._klick_address = liblo.Address(klick_port)
-        self._klick         = run('klick', # '-o', str(klick_port),
-                                           '-T', '-P', '-v', '1.0',
-                                           str(self.tempo))
+        self._klick         = run('klick', '-T', '-P', '-v', '1.0',
+                                           str(self.meter), str(self.tempo))
 
         # listen to jack.osc's timing messages
         self.osc.send(self._jack_osc_address, '/receive', 0xfffffff)
@@ -65,6 +64,9 @@ class Transport(object):
         self.osc.add_method('/tick',      None, self.on_osc_tick)
         self.osc.add_method('/drift',     None, self.on_osc_drift)
         self.osc.add_method('/transport', None, self.on_osc_transport)
+
+        # rewind transport to start
+        self.rewind()
 
     def on_osc_pulse(self, path, args):
         ntp, utc, frm, pntp, putc, pfrm, pulse = args
@@ -86,27 +88,44 @@ class Transport(object):
     def on_osc_transport(self, path, args):
         ntp, utc, frm, fps, ppm, ppc, pt, state = args
         self.app.react('transport {}'.format(args))
+        self.tempo
+        if self.meter != (ppc, pt):
+            self.meter = Meter(ppc, pt)
         self.rolling = state == 1
 
     def on_beat(self, beat):
         self.app.react('{}.{} {}'.format(self.bar, self.beat, self.meter))
+
         self.beat += 1
         if self.beat >= self.meter.upper:
             self.beat = 0
             self.bar += 1
-        #for callback in self.queue:
-            #callback()
+        time = At(self.beat, self.bar, 0)
+        for callback in self.queue.get(time, []):
+            self.app.react('callback {} at {}'.format(callback, time))
+            callback()
         #self.queue = []
 
+    def get_next_quant(self):
+        return At(self.bar + 2, 0, 0)
+
     def enqueue(self, callback, time=None):
-        #self.queue.append(callback)
-        pass
+        time   = time or self.get_next_quant()
+        events = self.queue.get(time, [])
+        events.append(callback)
+        self.queue.update({time: events})
+        self.app.react('enqueue {} at {}'.format(callback, time))
 
     def play(self):
         liblo.send(self._jack_osc_address, '/start')
 
     def pause(self):
         liblo.send(self._jack_osc_address, '/stop')
+
+    def rewind(self):
+        self.osc.send(self._jack_osc_address, '/stop')
+        self.osc.send(self._jack_osc_address, '/locate', 0)
+        self.bar, self.beat, self.time = 0, 0, 0
 
     def click_on(self):
         liblo.send(self._klick_address, '/klick/config/set_volume', 1.0)
