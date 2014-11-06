@@ -20,16 +20,15 @@ class Track(object):
         super(Track, self).__setattr__(name, value)
 
     def init_clips(self, clips):
-        return [self.get_clip(c) for c in clips]
+        return [self.make_clip(c) for c in clips]
 
-    def get_clip(self, clip):
-        if self.clip_class:
-            c = self.clip_class(clip)
-            c.app = self.app
-        else:
-            c = clip
-            c.app = self.app
-        return c
+    def make_clip(self, c):
+        if self.clip_class is None \
+        or isinstance(c, self.clip_class):
+            return c
+        clip = self.clip_class(c)
+        clip.app = self.app
+        return clip
 
     def add_clip(self, _):
         #self.widget.add.set_label('foo')
