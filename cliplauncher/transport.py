@@ -48,9 +48,9 @@ class Transport(object):
         self.tempo = tempo or self.tempo
 
         # jack.osc controls the jack transport
-        jackosc_port           = get_free_port()
-        self._jack_osc_address = liblo.Address(jackosc_port)
-        self._jack_osc         = run('jack.osc', '-p', str(jackosc_port))
+        jack_osc_port          = get_free_port()
+        self._jack_osc_address = liblo.Address(jack_osc_port)
+        self._jack_osc         = run('jack.osc', '-p', str(jack_osc_port))
 
         # klick is jack tempo master
         klick_port          = get_free_port()

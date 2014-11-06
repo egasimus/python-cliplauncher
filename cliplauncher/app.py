@@ -15,17 +15,20 @@ class ClipLauncher(object):
     ui         = {}
 
     def __init__(self, tracks=None):
+        self.main_loop = MainLoop(widget=None)
+
+        self.ui.update({'osc': OscUI(self)})
+
+        self.transport = Transport(self)
+
         self.tracks = tracks or self.tracks
         for track in self.tracks:
             track.app = self
 
-        self.main_loop = MainLoop(widget=None)
 
-        self.ui.update({'osc':  OscUI(self),
-                        'midi': MidiUI(self)})
-        self.transport = Transport(self)
+        self.ui.update({'midi': MidiUI(self),
+                       'urwid': UrwidUI(self)})
 
-        self.ui.update({'urwid': UrwidUI(self)})
         self.main_loop.widget = self.ui['urwid']
 
     def start(self):
