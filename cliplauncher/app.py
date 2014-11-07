@@ -1,3 +1,6 @@
+from pdb        import post_mortem
+from sys        import exc_info
+from traceback  import print_exc
 from urwid      import MainLoop, SelectEventLoop
 from .transport import JACKOSCKlickTransport
 from .ui.osc    import OscUI
@@ -22,4 +25,13 @@ class ClipLauncher(object):
         self.main_loop.widget = self.urwid
 
     def start(self):
-        self.main_loop.run()
+        try:
+            self.main_loop.run()
+        except:
+            exc_type, value, tb = exc_info()
+            print_exc()
+            self.main_loop.stop()
+            print(
+                "\nLooks like ClipLauncher has encountered an error :/" + 
+                "\nHere's a chance to clean up and/or see what's going on.\n")
+            post_mortem(tb)
