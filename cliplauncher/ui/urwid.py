@@ -1,7 +1,7 @@
 from .base         import ClipLauncherUI
 from ..events      import Event, INFO
 from urwid         import (AttrMap, BoxAdapter, Button, Columns, ExitMainLoop,
-                           Frame, Filler, ListBox, MainLoop, Pile,
+                           Frame, Filler, ListBox, MainLoop, Pile, Padding,
                            SelectableIcon, SimpleFocusListWalker, Text,
                            WidgetWrap)
 from urwid.signals import connect_signal
@@ -126,11 +126,11 @@ class AddClipButton(BaseClipButton):
 
 
 class TrackWidget(WidgetWrap):
-    ON_ADD_CLIP = Event()
-
     track = None
+    ui    = None
 
-    def __init__(self, track=None):
+    def __init__(self, ui=None, track=None):
+        self.ui    = ui or self.ui
         self.track = track or self.track
         self.clips = SimpleFocusListWalker(
             [ClipButton(c) for c in self.track.clips] +
@@ -140,8 +140,24 @@ class TrackWidget(WidgetWrap):
                                         self.header))
 
     def on_add_clip(self, _):
-        UrwidUI.add_clip(self)
-        
+        self.ui.add_clip(self)
+
+
+class EditorWidget(WidgetWrap):
+    visible = False
+
+    def __init__(self):
+        WidgetWrap.__init__(self,
+            Padding(left=1, right=1, w=Text('Editor goes here.')))
+
+    def rows(self, size, focus):
+        return 10 if self.visible else 0
+
+    def show(self):
+        self.visible = True
+
+    def hide(self):
+        self.visible = False
 
 
 class UrwidUI(WidgetWrap, ClipLauncherUI):
@@ -162,15 +178,16 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
 
         # create widgets
         self.cols   = Columns(SimpleFocusListWalker(
-            [TrackWidget(t) for t in self.app.tracks]),
+            [TrackWidget(self, t) for t in self.app.tracks]),
             self.track_spacing)
         self.header = TransportWidget(app.transport)
         self.footer = AttrMap(Text('footer'), 'footer')
-        self.editor = Text('editor')
+        self.editor = EditorWidget()
 
         # listen to events
         INFO.append(self.on_info)
 
+        # init as pile of widgets
         WidgetWrap.__init__(self, Pile([
             ('pack', self.header),
             self.cols,
@@ -188,4 +205,4 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
         self.app.main_loop.draw_screen()
 
     def add_clip(self, track, position=None):
-        self.editor = None
+        self.editor.show()

@@ -28,10 +28,10 @@ class ClipLauncher(object):
         try:
             self.main_loop.run()
         except:
-            exc_type, value, tb = exc_info()
-            print_exc()
             self.main_loop.stop()
+            exc_type, value, tb = exc_info()
             print(
                 "\nLooks like ClipLauncher has encountered an error :/" + 
                 "\nHere's a chance to clean up and/or see what's going on.\n")
+            print_exc()
             post_mortem(tb)
