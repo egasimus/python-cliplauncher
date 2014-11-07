@@ -1,10 +1,11 @@
-from   enum       import Enum
+from   enum        import Enum
 import liblo
 import math
 import mido
 import sys
-from   .events    import INFO
-from   .util      import run, get_free_port
+from   .events     import INFO
+from   .util       import run, get_free_port
+from   .media.base import Clip
 
 
 class At(tuple):
@@ -44,11 +45,21 @@ class BaseTransport(object):
     queue   = {}
 
     def __init__(self, tempo=None):
+        # enqueue clips upon launching them
+        Clip.ON_LAUNCH.append(self.enqueue)
+
         # set tempo
         self.tempo = tempo or self.tempo
 
         # rewind to beginning
         self.rewind()
+
+    def enqueue(self, clip, time=None):
+        time   = time or self.get_next_quant()
+        events = self.queue.get(time, [])
+        events.append(clip.start)
+        self.queue.update({time: events})
+        INFO('enqueue {} at {}'.format(clip.start, time))
 
     def on_beat(self, beat):
         self.beat += 1
@@ -62,13 +73,6 @@ class BaseTransport(object):
         for callback in self.queue.get(time, []):
             INFO('callback {} at {}'.format(callback, time))
             callback()
-
-    def enqueue(self, callback, time=None):
-        time   = time or self.get_next_quant()
-        events = self.queue.get(time, [])
-        events.append(callback)
-        self.queue.update({time: events})
-        INFO('enqueue {} at {}'.format(callback, time))
 
     def play(self):
         raise NotImplementedError

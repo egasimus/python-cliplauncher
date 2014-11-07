@@ -44,15 +44,6 @@ class SooperLooperTrack(Track):
         liblo.send(self.osc_address, '/set', 'sync_source', -1)
         liblo.send(self.osc_address, '/set', 'quantize', 2)
 
-    def __setattr__(self, name, value):
-        if name == 'app':
-            liblo.send(value.transport._jack_osc_address, '/connect',
-                       self.name+':common_out_1', 'system:playback_1')
-            liblo.send(value.transport._jack_osc_address, '/connect',
-                       self.name+':common_out_2', 'system:playback_2')
-        super(SooperLooperTrack, self).__setattr__(name, value)
-        
-
     def make_clip(self, c):
         clip = super(SooperLooperTrack, self).make_clip(c)
         clip.osc_address = self.osc_address

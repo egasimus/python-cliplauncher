@@ -14,15 +14,11 @@ class ClipLauncher(object):
 
     def __init__(self, tracks=None, tempo=None):
         self.main_loop = MainLoop(widget=None)
-        
         self.osc       = OscUI(self)
         self.transport = JACKOSCKlickTransport(tempo, osc=self.osc.server)
-        
-        self.tracks = tracks or self.tracks
-        for track in self.tracks:
-            track.app = self
-        
-        self.urwid            = UrwidUI(self)
+        self.tracks    = tracks or self.tracks
+        self.urwid     = UrwidUI(self)
+
         self.main_loop.widget = self.urwid
 
     def start(self):

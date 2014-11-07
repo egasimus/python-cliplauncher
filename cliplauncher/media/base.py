@@ -12,7 +12,6 @@ class Clip(object):
     ON_START  = Event()
     ON_END    = Event()
 
-    app  = None
     loop = True
     name = ''
     
@@ -21,7 +20,6 @@ class Clip(object):
         self.loop = loop or self.loop
 
     def launch(self, _):
-        self.app.transport.enqueue(self.start)
         self.ON_LAUNCH(self)
 
     def stop(self):
@@ -38,7 +36,6 @@ class Track(object):
     ON_ADD    = Event()
     ON_REMOVE = Event()
 
-    app        = None
     clips      = []
     clip_class = None
     name       = None
@@ -49,12 +46,6 @@ class Track(object):
         self.clips  = self.init_clips(clips or self.clips)
         self.width  = width or self.width
 
-    def __setattr__(self, name, value):
-        if name == 'app':
-            for clip in self.clips:
-                clip.app = value 
-        super(Track, self).__setattr__(name, value)
-
     def init_clips(self, clips):
         return [self.make_clip(c) for c in clips]
 
@@ -62,9 +53,7 @@ class Track(object):
         if self.clip_class is None \
         or isinstance(c, self.clip_class):
             return c
-        clip = self.clip_class(c)
-        clip.app = self.app
-        return clip
+        return self.clip_class(c)
 
     def add_clip(self, _):
         clip = Clip('new_clip')
