@@ -1,7 +1,8 @@
-from .base import ClipLauncherUI
-from urwid import (AttrMap, BoxAdapter, Button, Columns, ExitMainLoop, Frame,
-                   Filler, ListBox, MainLoop, SelectableIcon,
-                   SimpleFocusListWalker, Text, WidgetWrap)
+from .base         import ClipLauncherUI
+from ..events      import REACT
+from urwid         import (AttrMap, BoxAdapter, Button, Columns, ExitMainLoop,
+                           Frame, Filler, ListBox, MainLoop, SelectableIcon,
+                           SimpleFocusListWalker, Text, WidgetWrap)
 from urwid.signals import connect_signal
 
 
@@ -153,13 +154,18 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
     def __init__(self, app):
         ClipLauncherUI.__init__(self, app)
 
+        # set colors
         self.app.main_loop.screen.register_palette(self.palette)
 
+        # create widgets
         self.cols   = Columns(SimpleFocusListWalker(
             [TrackWidget(t) for t in self.app.tracks]),
             self.track_spacing)
         self.header = TransportWidget(app.transport)
         self.footer = AttrMap(Text('footer'), 'footer')
+
+        # listen to events
+        REACT.append(self.react)
 
         WidgetWrap.__init__(self, Frame(
             self.cols, self.header, self.footer))

@@ -33,3 +33,6 @@ class Event(list):
 
     def __repr__(self):
         return "Event(%s)" % list.__repr__(self)
+
+
+REACT = Event()

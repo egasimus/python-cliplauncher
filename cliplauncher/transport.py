@@ -3,6 +3,7 @@ import liblo
 import math
 import mido
 import sys
+from   .events    import REACT
 from   .util      import run, get_free_port
 
 
@@ -31,6 +32,8 @@ class Meter(tuple):
 
 
 class Transport(object):
+    osc     = None
+
     quant   = None
     tempo   = 140.0
     meter   = Meter(4, 4) 
@@ -42,10 +45,9 @@ class Transport(object):
 
     queue   = {}
 
-    def __init__(self, app, tempo=None):
-        self.app   = app
-        self.osc   = self.app.ui['osc'].osc_server
+    def __init__(self, tempo=None, osc=None):
         self.tempo = tempo or self.tempo
+        self.osc   = osc or self.osc
 
         # jack.osc controls the jack transport
         jack_osc_port          = get_free_port()
@@ -71,7 +73,7 @@ class Transport(object):
     def on_osc_pulse(self, path, args):
         ntp, utc, frm, pntp, putc, pfrm, pulse = args
         return
-        self.app.react('pulse {} {} {} {} {} {} {}'.format(*args))
+        REACT('pulse {} {} {} {} {} {} {}'.format(*args))
 
     def on_osc_tick(self, path, args):
         if not self.rolling:
@@ -87,7 +89,7 @@ class Transport(object):
 
     def on_osc_transport(self, path, args):
         ntp, utc, frm, fps, ppm, ppc, pt, state = args
-        self.app.react('transport {}'.format(args))
+        REACT('transport {}'.format(args))
         self.tempo
         if self.meter != (ppc, pt):
             self.meter = Meter(ppc, pt)
@@ -99,11 +101,11 @@ class Transport(object):
             self.beat = 0
             self.bar += 1
 
-        self.app.react('{}.{} {}'.format(self.bar, self.beat, self.meter))
+        REACT('{}.{} {}'.format(self.bar, self.beat, self.meter))
 
         time = At(self.bar, self.beat, 0)
         for callback in self.queue.get(time, []):
-            self.app.react('callback {} at {}'.format(callback, time))
+            REACT('callback {} at {}'.format(callback, time))
             callback()
 
     def get_next_quant(self):
@@ -114,7 +116,7 @@ class Transport(object):
         events = self.queue.get(time, [])
         events.append(callback)
         self.queue.update({time: events})
-        self.app.react('enqueue {} at {}'.format(callback, time))
+        REACT('enqueue {} at {}'.format(callback, time))
 
     def play(self):
         liblo.send(self._jack_osc_address, '/start')

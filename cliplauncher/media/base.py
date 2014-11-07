@@ -1,4 +1,29 @@
 __all__ = ('Track', 'Clip')
+
+
+class Clip(object):
+    app  = None
+    loop = True
+    name = ''
+    
+    def __init__(self, name=None, loop=None):
+        self.name = name or self.name
+        self.loop = loop or self.loop
+
+    def keypress(self, size, key):
+        pass
+
+    def launch(self, _):
+        self.app.transport.enqueue(self.start)
+
+    def stop(self):
+        pass
+
+    def start(self):
+        pass
+
+    def end(self):
+        pass
  
 
 class Track(object):
@@ -35,28 +60,3 @@ class Track(object):
         clip = Clip('new_clip')
         self.clips.append(clip)
         #self.widget.clips.insert(-1, clip.get_widget())
-
-
-class Clip(object):
-    app  = None
-    loop = True
-    name = ''
-    
-    def __init__(self, name=None, loop=None):
-        self.name = name or self.name
-        self.loop = loop or self.loop
-
-    def keypress(self, size, key):
-        pass
-
-    def launch(self, _):
-        self.app.transport.enqueue(self.start)
-
-    def stop(self):
-        pass
-
-    def start(self):
-        pass
-
-    def end(self):
-        pass
