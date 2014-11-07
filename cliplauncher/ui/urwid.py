@@ -1,8 +1,9 @@
 from .base         import ClipLauncherUI
-from ..events      import INFO
+from ..events      import Event, INFO
 from urwid         import (AttrMap, BoxAdapter, Button, Columns, ExitMainLoop,
-                           Frame, Filler, ListBox, MainLoop, SelectableIcon,
-                           SimpleFocusListWalker, Text, WidgetWrap)
+                           Frame, Filler, ListBox, MainLoop, Pile,
+                           SelectableIcon, SimpleFocusListWalker, Text,
+                           WidgetWrap)
 from urwid.signals import connect_signal
 
 
@@ -89,11 +90,6 @@ class TransportWidget(WidgetWrap):
         ], 1), 'footer'))
 
 
-class DimButton(Button):
-    button_left  = Text('+')
-    button_right = Text('')
-
-
 class BaseClipButton(Button):
     button_left  = None
     button_right = None
@@ -103,7 +99,7 @@ class BaseClipButton(Button):
         self._label = SelectableIcon(label, 0)
 
         cols = Columns([
-            ('fixed', 1, self._icon),
+            ('fixed', len(icon), self._icon),
             self._label],
             dividechars=1)
         WidgetWrap.__init__(self, cols)
@@ -116,33 +112,40 @@ class ClipButton(BaseClipButton):
 
     def __init__(self, clip):
         self.clip = clip
-        super(ClipButton, self).__init__('·', clip.name, self.on_click)
+        super(ClipButton, self).__init__('···', clip.name, self.on_click)
 
     def on_click(self, _):
-        self._icon.base_widget.set_text('*')
+        self._icon.base_widget.set_text('***')
         self.clip.launch(_)
 
 
 class AddClipButton(BaseClipButton):
-    def __init__(self):
-        super(AddClipButton, self).__init__('+', 'add clip')
+    def __init__(self, callback=None):
+        super(AddClipButton, self).__init__(
+            '+++', 'add clip', callback)
 
 
 class TrackWidget(WidgetWrap):
+    ON_ADD_CLIP = Event()
+
     track = None
 
     def __init__(self, track=None):
         self.track = track or self.track
-        self.add   = DimButton('', self.track.add_clip)
         self.clips = SimpleFocusListWalker(
             [ClipButton(c) for c in self.track.clips] +
-            [AddClipButton()])
+            [AddClipButton(self.on_add_clip)])
         self.header = Text('\n'+self.track.name+'\n')
         WidgetWrap.__init__(self, Frame(ListBox(self.clips),
                                         self.header))
 
+    def on_add_clip(self, _):
+        UrwidUI.add_clip(self)
+        
+
 
 class UrwidUI(WidgetWrap, ClipLauncherUI):
+
     palette = [('title',        'white',      'light gray'),
                ('header',       'white',      'light gray'),
                ('header_focus', 'white',      'dark red'),
@@ -163,19 +166,26 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
             self.track_spacing)
         self.header = TransportWidget(app.transport)
         self.footer = AttrMap(Text('footer'), 'footer')
+        self.editor = Text('editor')
 
         # listen to events
-        INFO.append(self.react)
+        INFO.append(self.on_info)
 
-        WidgetWrap.__init__(self, Frame(
-            self.cols, self.header, self.footer))
+        WidgetWrap.__init__(self, Pile([
+            ('pack', self.header),
+            self.cols,
+            ('pack', self.footer),
+            ('pack', self.editor)]))
 
     def keypress(self, size, key):
         if key == 'q':
             raise ExitMainLoop
         return super(UrwidUI, self).keypress(size, key)
 
-    def react(self, msg):
+    def on_info(self, msg):
         self.footer.original_widget.set_text(str(msg))
         self._invalidate()
         self.app.main_loop.draw_screen()
+
+    def add_clip(self, track, position=None):
+        self.editor = None
