@@ -35,4 +35,4 @@ class Event(list):
         return "Event(%s)" % list.__repr__(self)
 
 
-REACT = Event()
+INFO = Event()

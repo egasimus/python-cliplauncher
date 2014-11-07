@@ -3,7 +3,7 @@ import liblo
 import math
 import mido
 import sys
-from   .events    import REACT
+from   .events    import INFO
 from   .util      import run, get_free_port
 
 
@@ -31,12 +31,10 @@ class Meter(tuple):
         return "{}/{}".format(self.upper, self.lower)
 
 
-class Transport(object):
-    osc     = None
-
-    quant   = None
-    tempo   = 140.0
+class BaseTransport(object):
     meter   = Meter(4, 4) 
+    tempo   = 140.0
+    quant   = None
 
     rolling = False
     bar     = 0
@@ -45,9 +43,57 @@ class Transport(object):
 
     queue   = {}
 
-    def __init__(self, tempo=None, osc=None):
+    def __init__(self, tempo=None):
+        # set tempo
         self.tempo = tempo or self.tempo
-        self.osc   = osc or self.osc
+
+        # rewind to beginning
+        self.rewind()
+
+    def on_beat(self, beat):
+        self.beat += 1
+        if self.beat >= self.meter.upper:
+            self.beat = 0
+            self.bar += 1
+
+        INFO('{}.{} {}'.format(self.bar, self.beat, self.meter))
+
+        time = At(self.bar, self.beat, 0)
+        for callback in self.queue.get(time, []):
+            INFO('callback {} at {}'.format(callback, time))
+            callback()
+
+    def enqueue(self, callback, time=None):
+        time   = time or self.get_next_quant()
+        events = self.queue.get(time, [])
+        events.append(callback)
+        self.queue.update({time: events})
+        INFO('enqueue {} at {}'.format(callback, time))
+
+    def play(self):
+        raise NotImplementedError
+
+    def pause(self):
+        raise NotImplementedError
+
+    def rewind(self):
+        raise NotImplementedError
+
+    def seek(self):
+        raise NotImplementedError
+
+
+class NativeJACKTransport(BaseTransport):
+    pass
+
+
+class JACKOSCKlickTransport(BaseTransport):
+    osc = None
+
+    def __init__(self, *a, **k):
+       
+        # pick up osc server 
+        self.osc = k.pop('osc', self.osc)
 
         # jack.osc controls the jack transport
         jack_osc_port          = get_free_port()
@@ -67,13 +113,13 @@ class Transport(object):
         self.osc.add_method('/drift',     None, self.on_osc_drift)
         self.osc.add_method('/transport', None, self.on_osc_transport)
 
-        # rewind transport to start
-        self.rewind()
+        # do the standard transport stuff
+        super(JACKOSCKlickTransport, self).__init__(*a, **k)
 
     def on_osc_pulse(self, path, args):
         ntp, utc, frm, pntp, putc, pfrm, pulse = args
         return
-        REACT('pulse {} {} {} {} {} {} {}'.format(*args))
+        INFO('pulse {} {} {} {} {} {} {}'.format(*args))
 
     def on_osc_tick(self, path, args):
         if not self.rolling:
@@ -89,34 +135,14 @@ class Transport(object):
 
     def on_osc_transport(self, path, args):
         ntp, utc, frm, fps, ppm, ppc, pt, state = args
-        REACT('transport {}'.format(args))
+        INFO('transport {}'.format(args))
         self.tempo
         if self.meter != (ppc, pt):
             self.meter = Meter(ppc, pt)
         self.rolling = state == 1
 
-    def on_beat(self, beat):
-        self.beat += 1
-        if self.beat >= self.meter.upper:
-            self.beat = 0
-            self.bar += 1
-
-        REACT('{}.{} {}'.format(self.bar, self.beat, self.meter))
-
-        time = At(self.bar, self.beat, 0)
-        for callback in self.queue.get(time, []):
-            REACT('callback {} at {}'.format(callback, time))
-            callback()
-
     def get_next_quant(self):
         return At(self.bar + 1, 0, 0)
-
-    def enqueue(self, callback, time=None):
-        time   = time or self.get_next_quant()
-        events = self.queue.get(time, [])
-        events.append(callback)
-        self.queue.update({time: events})
-        REACT('enqueue {} at {}'.format(callback, time))
 
     def play(self):
         liblo.send(self._jack_osc_address, '/start')

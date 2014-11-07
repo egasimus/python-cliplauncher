@@ -1,7 +1,17 @@
+from ..events import Event
+
+
 __all__ = ('Track', 'Clip')
 
 
 class Clip(object):
+    ON_ADD    = Event()
+    ON_REMOVE = Event()
+    ON_LAUNCH = Event()
+    ON_STOP   = Event()
+    ON_START  = Event()
+    ON_END    = Event()
+
     app  = None
     loop = True
     name = ''
@@ -10,23 +20,24 @@ class Clip(object):
         self.name = name or self.name
         self.loop = loop or self.loop
 
-    def keypress(self, size, key):
-        pass
-
     def launch(self, _):
         self.app.transport.enqueue(self.start)
+        self.ON_LAUNCH(self)
 
     def stop(self):
-        pass
+        self.ON_STOP(self)
 
     def start(self):
-        pass
+        self.ON_START(self)
 
     def end(self):
-        pass
+        self.ON_END(self)
  
 
 class Track(object):
+    ON_ADD    = Event()
+    ON_REMOVE = Event()
+
     app        = None
     clips      = []
     clip_class = None
@@ -56,7 +67,10 @@ class Track(object):
         return clip
 
     def add_clip(self, _):
-        #self.widget.add.set_label('foo')
         clip = Clip('new_clip')
         self.clips.append(clip)
-        #self.widget.clips.insert(-1, clip.get_widget())
+        Clip.ON_ADD(clip)
+
+
+#self.widget.add.set_label('foo')
+#self.widget.clips.insert(-1, clip.get_widget())

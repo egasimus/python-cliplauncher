@@ -1,5 +1,5 @@
 from .base         import ClipLauncherUI
-from ..events      import REACT
+from ..events      import INFO
 from urwid         import (AttrMap, BoxAdapter, Button, Columns, ExitMainLoop,
                            Frame, Filler, ListBox, MainLoop, SelectableIcon,
                            SimpleFocusListWalker, Text, WidgetWrap)
@@ -165,7 +165,7 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
         self.footer = AttrMap(Text('footer'), 'footer')
 
         # listen to events
-        REACT.append(self.react)
+        INFO.append(self.react)
 
         WidgetWrap.__init__(self, Frame(
             self.cols, self.header, self.footer))
