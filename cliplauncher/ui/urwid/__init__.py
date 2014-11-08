@@ -1,4 +1,4 @@
-from .editor    import EditorWidget
+from .editor    import EditorPanel
 from .tracks    import TrackWidget
 from .transport import TransportWidget
 from ..base     import ClipLauncherUI
@@ -14,7 +14,8 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
                ('header_focus', 'white',      'dark red'),
                ('footer',       'white',      'black'),
                ('clip_focus',   'white',      'white'),
-               ('clip_empty',   'light gray', 'white')]
+               ('clip_dim',     'light gray', 'white'),
+               ('panel',        'white',      'black')]
 
     track_spacing = 2
 
@@ -31,7 +32,7 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
             self.track_spacing)
         self.header = TransportWidget(app.transport)
         self.footer = AttrMap(Text('footer'), 'footer')
-        self.editor = EditorWidget()
+        self.editor = EditorPanel()
 
         # listen to events
         INFO.append(self.on_info)
@@ -43,17 +44,15 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
             ('pack', self.footer),
             ('pack', self.editor)]))
 
-    def keypress(self, size, key):
-        if key == 'q':
-            raise ExitMainLoop
-        return super(UrwidUI, self).keypress(size, key)
+    def add_clip(self, track_widget, position=None):
+        self.editor.show(track_widget.track)
 
     def on_info(self, msg):
         self.footer.original_widget.set_text(str(msg))
         self._invalidate()
         self.app.main_loop.draw_screen()
 
-    def add_clip(self, track, position=None):
-        self.editor.show()
-        self._invalidate()
-        self.app.main_loop.draw_screen()
+    def keypress(self, size, key):
+        if key == 'q':
+            raise ExitMainLoop
+        return super(UrwidUI, self).keypress(size, key)

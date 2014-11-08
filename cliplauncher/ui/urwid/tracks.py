@@ -1,6 +1,7 @@
 from urwid import AttrMap, BoxAdapter, Button, Columns, Filler, Frame, \
                   ListBox, SelectableIcon, SimpleFocusListWalker, WidgetWrap
 from urwid.signals import connect_signal
+from ...media.base import Clip
 
 
 class BaseClipButton(Button):
@@ -8,7 +9,7 @@ class BaseClipButton(Button):
     button_right = None
 
     def __init__(self, icon, label, on_press=None, user_data=None): 
-        self._icon  = AttrMap(SelectableIcon(icon, 0), 'clip_empty')
+        self._icon  = AttrMap(SelectableIcon(icon, 0), 'clip_dim')
         self._label = SelectableIcon(label, 0)
 
         cols = Columns([
@@ -31,11 +32,19 @@ class ClipButton(BaseClipButton):
 
     def __init__(self, clip):
         self.clip = clip
+        Clip.ON_START.append(self.on_start)
         super(ClipButton, self).__init__('···', clip.name, self.on_click)
 
+    def set_icon(self, icon):
+        self._icon.base_widget.set_text(icon)
+
     def on_click(self, _):
-        self._icon.base_widget.set_text('***')
+        self.set_icon('***')
         self.clip.launch(_)
+
+    def on_start(self, clip):
+        if clip == self.clip:
+            self.set_icon('-->')
 
 
 class AddClipButton(BaseClipButton):

@@ -30,6 +30,10 @@ class Clip(object):
 
     def end(self):
         self.ON_END(self)
+
+    def get_editor_fields(self):
+        return (('name', 'Name', self.name),
+                ('loop', 'Loop', self.loop))
  
 
 class Track(object):
@@ -59,6 +63,10 @@ class Track(object):
         clip = Clip('new_clip')
         self.clips.append(clip)
         Clip.ON_ADD(clip)
+
+    def get_editor_fields(self):
+        return (('name', 'Name', ''),
+                ('loop', 'Loop', True))
 
 
 #self.widget.add.set_label('foo')

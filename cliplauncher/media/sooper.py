@@ -8,6 +8,8 @@ __all__ = ('SooperLooperTrack', 'SooperLooperClip')
 
 
 class SooperLooperClip(OSCClip):
+    rate = 1.0
+
     def __init__(self, *a, **k):
         super(SooperLooperClip, self).__init__(*a, **k)
         self.path = self.name
@@ -17,6 +19,12 @@ class SooperLooperClip(OSCClip):
         return liblo.Bundle(
             liblo.Message('/sl/0/load_loop', self.path, '', ''),
             liblo.Message('/sl/0/hit', 'trigger'))
+
+    def get_editor_fields(self):
+        return (('name', 'Name', self.name),
+                ('path', 'Path', self.path),
+                ('loop', 'Loop', self.loop),
+                ('rate', 'Rate', self.rate))
 
 
 class SooperLooperTrack(Track):
@@ -48,3 +56,9 @@ class SooperLooperTrack(Track):
         clip = super(SooperLooperTrack, self).make_clip(c)
         clip.osc_address = self.osc_address
         return clip
+
+    def get_editor_fields(self):
+        return (('name', 'Name', ''),
+                ('path', 'Path', ''),
+                ('loop', 'Loop', True),
+                ('rate', 'Rate', 1.0))
