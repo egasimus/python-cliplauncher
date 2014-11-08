@@ -107,6 +107,12 @@ class BaseClipButton(Button):
         connect_signal(self, 'click', on_press, user_data)
 
 
+class TrackHeader(WidgetWrap):
+    def __init__(self, name, number):
+        WidgetWrap.__init__(self, BoxAdapter(Filler(BaseClipButton(
+            str(number).rjust(3), name), top=1, bottom=1), height=3))
+
+
 class ClipButton(BaseClipButton):
     clip = None 
 
@@ -126,16 +132,20 @@ class AddClipButton(BaseClipButton):
 
 
 class TrackWidget(WidgetWrap):
-    track = None
-    ui    = None
+    number = None
+    track  = None
+    ui     = None
 
-    def __init__(self, ui=None, track=None):
-        self.ui    = ui or self.ui
-        self.track = track or self.track
+    def __init__(self, ui=None, track=None, number=None):
+        self.ui     = ui or self.ui
+        self.track  = track or self.track
+        self.number = number or self.number
+ 
         self.clips = SimpleFocusListWalker(
             [ClipButton(c) for c in self.track.clips] +
             [AddClipButton(self.on_add_clip)])
-        self.header = Text('\n'+self.track.name+'\n')
+        self.header = TrackHeader(self.track.name, number)
+
         WidgetWrap.__init__(self, Frame(ListBox(self.clips),
                                         self.header))
 
@@ -177,8 +187,9 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
         self.app.main_loop.screen.register_palette(self.palette)
 
         # create widgets
+        tracks = enumerate(self.app.tracks)
         self.cols   = Columns(SimpleFocusListWalker(
-            [TrackWidget(self, t) for t in self.app.tracks]),
+            [TrackWidget(self, t, n + 1) for n, t in tracks]),
             self.track_spacing)
         self.header = TransportWidget(app.transport)
         self.footer = AttrMap(Text('footer'), 'footer')
@@ -206,3 +217,5 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
 
     def add_clip(self, track, position=None):
         self.editor.show()
+        self._invalidate()
+        self.app.main_loop.draw_screen()
