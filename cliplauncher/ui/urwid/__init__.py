@@ -1,4 +1,4 @@
-from .editor    import EditorPanel
+from .editor    import Panel
 from .tracks    import TrackWidget
 from .transport import TransportWidget
 from ..base     import ClipLauncherUI
@@ -15,7 +15,8 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
                ('footer',       'white',      'black'),
                ('clip_focus',   'white',      'white'),
                ('clip_dim',     'light gray', 'white'),
-               ('panel',        'white',      'black')]
+               ('editable',     'yellow',     'black'),
+               ('panel',        'white',      'light gray')]
 
     track_spacing = 2
 
@@ -30,9 +31,9 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
         self.cols   = Columns(SimpleFocusListWalker(
             [TrackWidget(self, t, n + 1) for n, t in tracks]),
             self.track_spacing)
+        self.editor = Panel()
         self.header = TransportWidget(app.transport)
-        self.footer = AttrMap(Text('footer'), 'footer')
-        self.editor = EditorPanel()
+        self.footer = AttrMap(Text('foo'), 'footer')
 
         # listen to events
         INFO.append(self.on_info)
@@ -41,8 +42,8 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
         WidgetWrap.__init__(self, Pile([
             ('pack', self.header),
             self.cols,
-            ('pack', self.footer),
-            (10, self.editor)]))
+            (10, self.editor),
+            ('pack', self.footer)]))
 
     def add_clip(self, track_widget, position=None):
         self.editor.show(track_widget.track)

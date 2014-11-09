@@ -1,27 +1,50 @@
-from urwid import AttrMap, CheckBox, Columns, Edit, ListBox, Padding, \
-                  SimpleFocusListWalker, Text, WidgetWrap
+from urwid import AttrMap, CheckBox, Columns, Edit, Frame, ListBox, \
+                  Padding, SimpleFocusListWalker, Text, WidgetWrap
 
 
 class EditorWidget(WidgetWrap):
-    def __init__(self, track=None, clip=None):
-        obj = clip or track
-        WidgetWrap.__init__(self, ListBox(SimpleFocusListWalker(
-            [self.get_field(f) for f in obj.get_editor_fields()])))
+    label = None
+    value = None
 
-    def get_field(self, field):
-        name, label, default = field
-        if isinstance(default, str):
-            return Edit(label + ' ', default)
-        elif isinstance(default, bool):
-            return CheckBox(label, default)
+    def __init__(self, label, value):
+        self.label = label
+        self.value = value
+
+        WidgetWrap.__init__(self, Columns([
+            Text(label),
+            self.get_widget()],
+        1))
+
+    def get_widget(self):
+        if isinstance(self.value, str):
+            return AttrMap(Edit('', self.value), 'editable')
+        elif isinstance(self.value, bool):
+            return CheckBox('', self.value)
         else:
-            return Text("Unknown field {}".format(label))
+            return Text("Unknown field type {}".format(str(type(self.value))))
+
+
+class Editor(WidgetWrap):
+    editing = None
+
+    def __init__(self, track=None, clip=None):
+        self.editing = clip or track
+
+        self.header = Text('Editing clip {}'.format(clip.name)
+             if  clip else 'Adding new clip to {}'.format(track.name)
+             if track else 'Editor')
+        self.body = ListBox(SimpleFocusListWalker(
+            [EditorWidget(label, default) for name, label, default
+             in self.editing.get_fields()])
+            if self.editing else [])
+        
+        WidgetWrap.__init__(self, Frame(self.body, self.header))
 
     def rows(self, size, focus):
         return 10
 
 
-class EditorPanel(WidgetWrap):
+class Panel(WidgetWrap):
     visible = False
 
     def __init__(self):
@@ -35,7 +58,7 @@ class EditorPanel(WidgetWrap):
 
     def show(self, track=None, clip=None):
         if track or clip:
-            self._w = self.wrap(EditorWidget(track, clip))
+            self._w = self.wrap(Editor(track, clip))
         self.visible = True
 
     def hide(self):

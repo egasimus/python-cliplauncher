@@ -31,7 +31,7 @@ class Clip(object):
     def end(self):
         self.ON_END(self)
 
-    def get_editor_fields(self):
+    def get_fields(self):
         return (('name', 'Name', self.name),
                 ('loop', 'Loop', self.loop))
  
@@ -64,7 +64,7 @@ class Track(object):
         self.clips.append(clip)
         Clip.ON_ADD(clip)
 
-    def get_editor_fields(self):
+    def get_fields(self):
         return (('name', 'Name', ''),
                 ('loop', 'Loop', True))
 

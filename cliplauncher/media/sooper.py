@@ -20,7 +20,7 @@ class SooperLooperClip(OSCClip):
             liblo.Message('/sl/0/load_loop', self.path, '', ''),
             liblo.Message('/sl/0/hit', 'trigger'))
 
-    def get_editor_fields(self):
+    def get_fields(self):
         return (('name', 'Name', self.name),
                 ('path', 'Path', self.path),
                 ('loop', 'Loop', self.loop),
@@ -57,7 +57,7 @@ class SooperLooperTrack(Track):
         clip.osc_address = self.osc_address
         return clip
 
-    def get_editor_fields(self):
+    def get_fields(self):
         return (('name', 'Name', ''),
                 ('path', 'Path', ''),
                 ('loop', 'Loop', True),
