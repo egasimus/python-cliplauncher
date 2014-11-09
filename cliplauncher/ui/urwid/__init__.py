@@ -42,7 +42,7 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
             ('pack', self.header),
             self.cols,
             ('pack', self.footer),
-            ('pack', self.editor)]))
+            (10, self.editor)]))
 
     def add_clip(self, track_widget, position=None):
         self.editor.show(track_widget.track)

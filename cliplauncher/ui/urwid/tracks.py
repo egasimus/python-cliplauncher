@@ -59,8 +59,8 @@ class TrackWidget(WidgetWrap):
     ui     = None
 
     def __init__(self, ui=None, track=None, number=None):
-        self.ui     = ui or self.ui
-        self.track  = track or self.track
+        self.ui     = ui     or self.ui
+        self.track  = track  or self.track
         self.number = number or self.number
  
         self.clips = SimpleFocusListWalker(
