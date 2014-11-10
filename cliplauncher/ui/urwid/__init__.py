@@ -45,15 +45,12 @@ class UrwidUI(WidgetWrap, ClipLauncherUI):
             (10, self.editor),
             ('pack', self.footer)]))
 
-    def add_clip(self, track_widget, position=None):
-        self.editor.show(track_widget.track)
-
     def on_info(self, msg):
         self.footer.original_widget.set_text(str(msg))
         self._invalidate()
         self.app.main_loop.draw_screen()
 
     def keypress(self, size, key):
-        if key == 'q':
+        if key == 'ctrl w':
             raise ExitMainLoop
         return super(UrwidUI, self).keypress(size, key)

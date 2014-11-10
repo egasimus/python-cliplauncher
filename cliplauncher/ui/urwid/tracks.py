@@ -28,10 +28,9 @@ class TrackHeader(WidgetWrap):
 
 
 class ClipButton(BaseClipButton):
-    clip = None 
-
-    def __init__(self, clip):
+    def __init__(self, ui, clip):
         self.clip = clip
+        self.ui   = ui
         Clip.ON_START.append(self.on_start)
         super(ClipButton, self).__init__('···', clip.name, self.on_click)
 
@@ -45,6 +44,10 @@ class ClipButton(BaseClipButton):
     def on_start(self, clip):
         if clip == self.clip:
             self.set_icon('-->')
+
+    def keypress(self, size, key):
+        if key == 'ctrl e':
+            self.ui.editor.show(self.clip)
 
 
 class AddClipButton(BaseClipButton):
@@ -64,7 +67,7 @@ class TrackWidget(WidgetWrap):
         self.number = number or self.number
  
         self.clips = SimpleFocusListWalker(
-            [ClipButton(c) for c in self.track.clips] +
+            [ClipButton(ui, c) for c in self.track.clips] +
             [AddClipButton(self.on_add_clip)])
         self.header = TrackHeader(self.track.name, number)
 
@@ -72,5 +75,5 @@ class TrackWidget(WidgetWrap):
                                         self.header))
 
     def on_add_clip(self, _):
-        self.ui.add_clip(self)
+        self.ui.editor.show(self.track)
 
