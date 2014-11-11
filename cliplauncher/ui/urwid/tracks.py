@@ -32,6 +32,7 @@ class ClipButton(BaseClipButton):
         self.clip = clip
         self.ui   = ui
         Clip.ON_START.append(self.on_start)
+        Clip.ON_PROGRESS.append(self.ui.on_info)
         super(ClipButton, self).__init__('···', clip.name, self.on_click)
 
     def set_icon(self, icon):
@@ -47,7 +48,8 @@ class ClipButton(BaseClipButton):
 
     def keypress(self, size, key):
         if key == 'ctrl e':
-            self.ui.editor.show(self.clip)
+            self.ui.editor.show(clip=self.clip)
+        return super(ClipButton, self).keypress(size, key)
 
 
 class AddClipButton(BaseClipButton):
@@ -75,5 +77,5 @@ class TrackWidget(WidgetWrap):
                                         self.header))
 
     def on_add_clip(self, _):
-        self.ui.editor.show(self.track)
+        self.ui.editor.show(track=self.track)
 

@@ -18,6 +18,7 @@ class SooperLooperClip(OSCClip):
     def build_message(self):
         return liblo.Bundle(
             liblo.Message('/sl/0/load_loop', self.path, '', ''),
+            #liblo.Message('/sl/0/register_update/', 'scratch_pos', '', ''),
             liblo.Message('/sl/0/hit', 'trigger'))
 
     def get_fields(self):

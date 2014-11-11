@@ -5,12 +5,13 @@ __all__ = ('Track', 'Clip')
 
 
 class Clip(object):
-    ON_ADD    = Event()
-    ON_REMOVE = Event()
-    ON_LAUNCH = Event()
-    ON_STOP   = Event()
-    ON_START  = Event()
-    ON_END    = Event()
+    ON_ADD      = Event()
+    ON_REMOVE   = Event()
+    ON_LAUNCH   = Event()
+    ON_HALT     = Event()
+    ON_START    = Event()
+    ON_PROGRESS = Event()
+    ON_END      = Event()
 
     loop = True
     name = ''
@@ -23,7 +24,7 @@ class Clip(object):
         self.ON_LAUNCH(self)
 
     def stop(self):
-        self.ON_STOP(self)
+        self.ON_HALT(self)
 
     def start(self):
         self.ON_START(self)
