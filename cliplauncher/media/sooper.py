@@ -27,6 +27,9 @@ class SooperLooperClip(OSCClip):
                 ('loop', 'Loop', self.loop),
                 ('rate', 'Rate', self.rate))
 
+    def edit(self, values):
+        super(SooperLooperClip, self).edit(values)
+
 
 class SooperLooperTrack(Track):
     clip_class = SooperLooperClip

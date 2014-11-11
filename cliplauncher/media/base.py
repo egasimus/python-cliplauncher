@@ -6,6 +6,7 @@ __all__ = ('Track', 'Clip')
 
 class Clip(object):
     ON_ADD      = Event()
+    ON_EDIT     = Event()
     ON_REMOVE   = Event()
     ON_LAUNCH   = Event()
     ON_HALT     = Event()
@@ -31,6 +32,14 @@ class Clip(object):
 
     def end(self):
         self.ON_END(self)
+
+    def edit(self, values=None):
+        if values:
+            if 'name' in values:
+                self.name = str(values['name'])
+            if 'loop' in values:
+                self.loop = bool(values['loop'])
+        self.ON_EDIT(self, values)
 
     def get_fields(self):
         return (('name', 'Name', self.name),

@@ -57,11 +57,13 @@ class Editor(WidgetWrap):
     def rows(self, size, focus):
         return 10
 
+    def get_values(self):
+        return dict([w.get_value() for w in self.widgets])
+
     def keypress(self, size, key):
         if key == 'enter':
-            values = dict([w.get_value() for w in self.widgets])
             if isinstance(self.editing, Clip):
-                INFO(values)
+                self.editing.edit(self.get_values())
         else:
             return super(Editor, self).keypress(size, key)
 

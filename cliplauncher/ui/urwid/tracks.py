@@ -31,6 +31,7 @@ class ClipButton(BaseClipButton):
     def __init__(self, ui, clip):
         self.clip = clip
         self.ui   = ui
+        Clip.ON_EDIT.append(self.on_edit)
         Clip.ON_START.append(self.on_start)
         Clip.ON_PROGRESS.append(self.ui.on_info)
         super(ClipButton, self).__init__('···', clip.name, self.on_click)
@@ -41,6 +42,11 @@ class ClipButton(BaseClipButton):
     def on_click(self, _):
         self.set_icon('***')
         self.clip.launch(_)
+
+    def on_edit(self, clip, values):
+        if clip == self.clip:
+            if 'name' in values:
+                self._label.set_text(values['name'])
 
     def on_start(self, clip):
         if clip == self.clip:
