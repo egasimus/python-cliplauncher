@@ -1,12 +1,8 @@
 import atexit
-import socket
 from   subprocess import Popen, DEVNULL
 
 
-def get_free_port():
-    s = socket.socket()
-    s.bind(("", 0))
-    return s.getsockname()[1]
+__all__ = ('run',)
 
 
 def run(*args, **kwargs):
@@ -17,3 +13,4 @@ def run(*args, **kwargs):
         args, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL)
     atexit.register(lambda: subprocess.kill())
     return subprocess
+
