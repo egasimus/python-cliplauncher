@@ -58,6 +58,8 @@ class SooperLooperTrack(Track):
         liblo.send(self.osc_address, '/set', 'quantize', 2)
 
     def init_clip(self, c):
+        if isinstance(c, str):
+            c = {'path': c}
         clip = super(SooperLooperTrack, self).init_clip(c)
         clip.osc_address = self.osc_address
         return clip

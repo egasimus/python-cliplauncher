@@ -97,14 +97,26 @@ class Track(object):
         return [self.init_clip(c) for c in clips]
 
     def init_clip(self, c):
+        # do nothing if there's nothing to do
+        # or you don't really know what to do
         if self.clip_class is None \
         or isinstance(c, self.clip_class):
             return c
-        return self.clip_class(c)
+
+        # since this base class isn't supposed to do
+        # anything more complicated, but still needs
+        # to handle strings somehow, strings are, by
+        # default, used as names. subclass would put
+        # something else here anyway.
+        if isinstance(c, str):
+            c = {'name': c}
+
+        return self.new_clip(c)
 
     def new_clip(self, values):
         clip = self.clip_class(**values)
         self.add_clip(clip)
+        return clip
 
     def add_clip(self, clip, pos=-1):
         self.clips.append(clip)
