@@ -1,6 +1,7 @@
 from urwid import AttrMap, BoxAdapter, Button, Columns, Filler, Frame, \
                   ListBox, SelectableIcon, SimpleFocusListWalker, WidgetWrap
 from urwid.signals import connect_signal
+from ...events     import INFO
 from ...media.base import Clip
 
 
@@ -44,7 +45,7 @@ class ClipButton(BaseClipButton):
         self.clip.launch(_)
 
     def on_edit(self, clip, values):
-        if clip == self.clip:
+       if clip == self.clip:
             if 'name' in values:
                 self._label.set_text(values['name'])
 
@@ -74,14 +75,19 @@ class TrackWidget(WidgetWrap):
         self.track  = track  or self.track
         self.number = number or self.number
  
-        self.clips = SimpleFocusListWalker(
-            [ClipButton(ui, c) for c in self.track.clips] +
-            [AddClipButton(self.on_add_clip)])
         self.header = TrackHeader(self.track.name, number)
+        self.clips = SimpleFocusListWalker(
+            [ClipButton(self.ui, c) for c in self.track.clips] +
+            [AddClipButton(self.on_add_button)])
+
+        Clip.ON_ADD.append(self.on_clip_added)
 
         WidgetWrap.__init__(self, Frame(ListBox(self.clips),
-                                        self.header))
+                                        header=self.header))
 
-    def on_add_clip(self, _):
+    def on_add_button(self, _):
         self.ui.editor.show(track=self.track)
 
+    def on_clip_added(self, track, clip):
+        if track == self.track:
+            self.clips.insert(-1, ClipButton(self.ui, clip))

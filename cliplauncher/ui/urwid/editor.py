@@ -64,6 +64,8 @@ class Editor(WidgetWrap):
         if key == 'enter':
             if isinstance(self.editing, Clip):
                 self.editing.edit(self.get_values())
+            elif isinstance(self.editing, Track):
+                self.editing.new_clip(self.get_values())
         else:
             return super(Editor, self).keypress(size, key)
 

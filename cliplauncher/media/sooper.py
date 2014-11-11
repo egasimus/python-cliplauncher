@@ -11,9 +11,10 @@ class SooperLooperClip(OSCClip):
     rate = 1.0
 
     def __init__(self, *a, **k):
+        self.path = k.pop('path', '')
+        self.name = k.pop('name', None) or self.path.split('/')[-1]
+        self.rate = k.pop('rate', None) or self.rate
         super(SooperLooperClip, self).__init__(*a, **k)
-        self.path = self.name
-        self.name = self.path.split('/')[-1]
 
     def build_message(self):
         return liblo.Bundle(

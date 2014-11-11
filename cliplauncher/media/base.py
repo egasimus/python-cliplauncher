@@ -61,18 +61,21 @@ class Track(object):
         self.width  = width or self.width
 
     def init_clips(self, clips):
-        return [self.make_clip(c) for c in clips]
+        return [self.init_clip(c) for c in clips]
 
-    def make_clip(self, c):
+    def init_clip(self, c):
         if self.clip_class is None \
         or isinstance(c, self.clip_class):
             return c
         return self.clip_class(c)
 
-    def add_clip(self, _):
-        clip = Clip('new_clip')
+    def new_clip(self, values):
+        clip = self.clip_class(**values)
+        self.add_clip(clip)
+
+    def add_clip(self, clip, pos=-1):
         self.clips.append(clip)
-        Clip.ON_ADD(clip)
+        Clip.ON_ADD(self, clip)
 
     def get_fields(self):
         return (('name', 'Name', ''),
