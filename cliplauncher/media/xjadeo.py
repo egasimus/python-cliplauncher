@@ -32,8 +32,8 @@ class XJadeoTrack(Track):
                                 '-J',
                                 '-O', str(self.osc_port))
 
-    def make_clip(self, c):
-        clip = super(XJadeoTrack, self).make_clip(c)
+    def init_clip(self, c):
+        clip = super(XJadeoTrack, self).init_clip(c)
         clip.osc_address = self.osc_address
         return clip
 

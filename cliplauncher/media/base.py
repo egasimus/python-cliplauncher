@@ -75,18 +75,23 @@ class Track(object):
 
         A `Track` can also contain things which are shared among all
         its clips -- such as an OSC connection to an external player
-        program. """
+        program. Currently, when a clip is added to a track, a `track`
+        attribute is set on the clip so that it can access attributes
+        of the track. This means that a clip can't belong to multiple
+        tracks simultaneously (or, more accurately, that it will only
+        be able to see the last track to which it was added.) """
 
     ON_ADD    = Event()
     ON_REMOVE = Event()
 
-    clips      = []
     clip_class = None
-    name       = None
+
+    clips = []
+    name  = None
     
     def __init__(self, name=None, clips=None):
-        self.name   = name or self.name
-        self.clips  = self.init_clips(clips or self.clips)
+        self.name  = name or self.name
+        self.clips = self.init_clips(clips or self.clips)
 
     def init_clips(self, clips):
         return [self.init_clip(c) for c in clips]
@@ -103,6 +108,7 @@ class Track(object):
 
     def add_clip(self, clip, pos=-1):
         self.clips.append(clip)
+        clip.track = self
         Clip.ON_ADD(self, clip)
 
     def get_fields(self):
