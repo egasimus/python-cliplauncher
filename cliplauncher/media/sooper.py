@@ -60,9 +60,7 @@ class SooperLooperTrack(Track):
     def init_clip(self, c):
         if isinstance(c, str):
             c = {'path': c}
-        clip = super(SooperLooperTrack, self).init_clip(c)
-        clip.osc_address = self.osc_address
-        return clip
+        return super(SooperLooperTrack, self).init_clip(c)
 
     def get_fields(self):
         return (('name', 'Name', ''),
