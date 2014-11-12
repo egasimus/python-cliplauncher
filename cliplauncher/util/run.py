@@ -11,6 +11,11 @@ def run(*args, **kwargs):
     stderr = kwargs.get('stderr', DEVNULL)
     subprocess = Popen(
         args, stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL)
-    atexit.register(lambda: subprocess.kill())
-    return subprocess
 
+    def kill():
+        print('killing {} "{}" ...'.format(subprocess.pid, ' '.join(args)))
+        subprocess.kill()
+
+    atexit.register(kill)
+
+    return subprocess
